@@ -1,0 +1,64 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Employee {
+    id          String     @id @default(cuid())
+    firstName   String
+    lastName    String
+    email       String
+    departement Department
+}
+
+enum Department {
+    IT
+    Marketing
+    Sales
+    HR
+}
+
+enum Status {
+    Pending
+    Approved
+    Rejected
+}
+
+enum LeaveType {
+    Days
+    Hours
+}
+
+enum LeaveReason {
+    Vacation
+    Sick
+    Quitting
+    Other
+}
+
+model LeaveApplication {
+    id String @id @default(cuid())
+
+    employeeId String
+    firstName  String
+    lastName   String
+    email      String
+
+    department  Department
+    status      Status      @default(Pending)
+    leaveReason LeaveReason
+    comments    String?
+
+    leaveType LeaveType
+
+    startDate DateTime? @db.Date
+    endDate   DateTime? @db.Date
+
+    selectedDay DateTime? @db.Date
+    startHour   DateTime? @db.Time
+    endHour     DateTime? @db.Time
+}
