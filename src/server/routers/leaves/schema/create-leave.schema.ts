@@ -45,67 +45,75 @@ export const createLeaveSchema = z
       .optional(),
   })
   .refine(
-    (val) => {
-      if (val.leaveType === 'Hours') {
-        if (!val.selectedDay) {
+    (values) => {
+      if (values.leaveType === 'Hours') {
+        if (!values.selectedDay) {
           errorMsg = {
             message: 'selectedDay is required',
             path: ['selectedDay'],
           };
           return false;
         }
-        if (!val.startHour) {
+        if (!values.startHour) {
           errorMsg = {
             message: 'startHour is required',
             path: ['startHour'],
           };
           return false;
         }
-        if (!val.endHour) {
+        if (!values.endHour) {
           errorMsg = {
             message: 'endHour is required',
             path: ['endHour'],
           };
           return false;
         }
-        if (val.startHour! > val.endHour!) {
+        if (values.startHour > values.endHour) {
           errorMsg = {
             message: 'Start hour cannot be after the end hour',
             path: ['startHour', 'endHour'],
           };
           return false;
         }
-
-        return !val.startDate || !val.endDate;
       }
-      if (val.leaveType === 'Days') {
-        if (!val.startDate) {
+      if (values.leaveType === 'Days') {
+        if (!values.startDate) {
           errorMsg = {
             message: 'startDate is required',
             path: ['startDate'],
           };
           return false;
         }
-        if (!val.endDate) {
+        if (!values.endDate) {
           errorMsg = {
             message: 'endDate is required',
             path: ['endDate'],
           };
           return false;
         }
-        if (val.startDate! > val.endDate!) {
+        if (values.startDate > values.endDate) {
           errorMsg = {
             message: 'Start date cannot be after the end date',
             path: ['startDate', 'endDate'],
           };
           return false;
         }
-
-        return !val.selectedDay || !val.startHour || !val.endHour;
       }
       return true;
     },
     () => errorMsg
-  );
+  )
+  .transform((values) => {
+    if (values.leaveType === 'Hours') {
+      values.startDate = null;
+      values.endDate = null;
+    } else {
+      values.selectedDay = null;
+      values.startHour = null;
+      values.endHour = null;
+    }
+
+    return values;
+  });
 
 export type CreateLeaveSchema = z.infer<typeof createLeaveSchema>;
